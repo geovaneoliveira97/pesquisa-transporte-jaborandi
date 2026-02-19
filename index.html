@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesquisa · Jaborandi Transp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-deep:  #0f4f2e;
+      --green-mid:   #1a7a47;
+      --green-light: #25a862;
+      --gold:        #c9a84c;
+      --cream:       #f7f4ee;
+      --ink:         #0d1f14;
+      --muted:       #5a6e61;
+      --border:      #d4e0d8;
+      --white:       #ffffff;
+      --error:       #c0392b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 0%, rgba(26,122,71,.13) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 90% 100%, rgba(201,168,76,.10) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 6rem;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      padding: 2.5rem 1rem 2rem;
+      animation: fadeDown .7s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      margin-bottom: 1.75rem;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 16px rgba(15,79,46,.25);
+    }
+    .logo-icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--green-deep);
+      letter-spacing: -.02em;
+    }
+    .logo-text span { color: var(--green-light); }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.65rem, 5vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.18;
+      color: var(--green-deep);
+      margin-bottom: .85rem;
+    }
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--green-mid), var(--green-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: .92rem;
+      max-width: 420px;
+      margin: 0 auto .5rem;
+      line-height: 1.65;
+    }
+
+    .anon-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: #edf8f2;
+      border: 1.5px solid #b6e8cf;
+      color: var(--green-mid);
+      font-size: .72rem;
+      font-weight: 600;
+      padding: .35rem .85rem;
+      border-radius: 99px;
+      margin-top: .85rem;
+    }
+    .anon-badge svg { width: 12px; height: 12px; }
+
+    /* ── Progresso ── */
+    .progress-wrap {
+      margin: 1.75rem 0 1.5rem;
+      animation: fadeDown .7s .1s cubic-bezier(.16,1,.3,1) both;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: .45rem;
+    }
+    .progress-info strong {
+      font-family: 'Syne', sans-serif;
+      font-size: .8rem;
+      color: var(--green-mid);
+    }
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green-mid), var(--green-light));
+      border-radius: 99px;
+      transition: width .5s cubic-bezier(.16,1,.3,1);
+      width: 0%;
+    }
+
+    /* ── Card de questão ── */
+    .question-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 1.75rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 20px rgba(15,79,46,.05);
+      animation: slideUp .6s cubic-bezier(.16,1,.3,1) both;
+      transition: box-shadow .3s;
+    }
+    .question-card:hover { box-shadow: 0 6px 32px rgba(15,79,46,.09); }
+
+    .q-number {
+      font-family: 'Syne', sans-serif;
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--green-light);
+      margin-bottom: .9rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .q-number::before {
+      content: '';
+      display: inline-block;
+      width: 14px; height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+
+    .q-label {
+      font-weight: 600;
+      font-size: .95rem;
+      color: var(--ink);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    .q-hint {
+      font-size: .78rem;
+      font-weight: 400;
+      color: var(--muted);
+      display: block;
+      margin-top: .25rem;
+    }
+    .required { color: var(--green-light); margin-left: 1px; }
+
+    /* ── Opções ── */
+    .options { display: flex; flex-direction: column; gap: .5rem; }
+    .options.row { flex-direction: row; flex-wrap: wrap; gap: .45rem; }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .7rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: .875rem;
+      cursor: pointer;
+      font-size: .88rem;
+      font-weight: 400;
+      color: var(--ink);
+      background: var(--cream);
+      transition: border-color .2s, background .2s, transform .15s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .opt:hover { border-color: var(--green-light); background: #edf8f2; }
+    .opt:active { transform: scale(.98); }
+    .opt input { display: none; }
+
+    .dot {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: border-color .2s, background .2s;
+    }
+    .opt input[type="checkbox"] + .dot { border-radius: 6px; }
+    .dot::after {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity .2s, transform .2s cubic-bezier(.16,1,.3,1);
+    }
+    .opt input[type="checkbox"] + .dot::after { border-radius: 2px; }
+
+    .opt:has(input:checked) {
+      border-color: var(--green-mid);
+      background: #edf8f2;
+      font-weight: 500;
+    }
+    .opt:has(input:checked) .dot {
+      border-color: var(--green-mid);
+      background: var(--green-mid);
+    }
+    .opt:has(input:checked) .dot::after { opacity: 1; transform: scale(1); }
+
+    /* chips */
+    .options.row .opt {
+      padding: .45rem .9rem;
+      border-radius: 99px;
+      gap: .35rem;
+      font-size: .82rem;
+    }
+    .options.row .dot { display: none; }
+
+    /* ── Escala 1-5 ── */
+    .scale { display: flex; gap: .4rem; }
+    .scale .opt {
+      flex: 1;
+      justify-content: center;
+      padding: .65rem .3rem;
+      border-radius: .875rem;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+    .scale .dot { display: none; }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: .7rem;
+      color: var(--muted);
+      margin-top: .35rem;
+      padding: 0 .15rem;
+    }
+
+    /* ── Erro ── */
+    .field-error {
+      font-size: .74rem;
+      color: var(--error);
+      margin-top: .5rem;
+      display: none;
+    }
+    .question-card.invalid .field-error { display: block; }
+    .question-card.invalid { border-color: #f5c6c2; }
+
+    /* ── Submit ── */
+    .btn-submit {
+      width: 100%;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 24px rgba(15,79,46,.28);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(15,79,46,.35); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit svg { width: 18px; height: 18px; }
+
+    /* ── Sucesso ── */
+    #success {
+      display: none;
+      text-align: center;
+      padding: 4rem 1.5rem;
+      animation: fadeDown .6s cubic-bezier(.16,1,.3,1) both;
+    }
+    .success-icon {
+      width: 76px; height: 76px;
+      background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 1.75rem;
+      box-shadow: 0 8px 32px rgba(37,168,98,.32);
+      animation: popIn .5s .1s cubic-bezier(.16,1,.3,1) both;
+    }
+    #success h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--green-deep);
+      margin-bottom: .75rem;
+    }
+    #success p {
+      color: var(--muted);
+      max-width: 360px;
+      margin: 0 auto;
+      line-height: 1.7;
+      font-size: .95rem;
+    }
+    .success-tag {
+      display: inline-block;
+      margin-top: 2rem;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--border);
+      padding: .35rem .9rem;
+      border-radius: 99px;
+    }
+
+    /* ── Animações ── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.6); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .question-card:nth-child(1) { animation-delay: .04s; }
+    .question-card:nth-child(2) { animation-delay: .10s; }
+    .question-card:nth-child(3) { animation-delay: .16s; }
+    .question-card:nth-child(4) { animation-delay: .22s; }
+    .question-card:nth-child(5) { animation-delay: .28s; }
+    .question-card:nth-child(6) { animation-delay: .34s; }
+
+    @media (max-width: 500px) {
+      .container { padding: 1rem 1rem 5rem; }
+      .question-card { padding: 1.4rem; border-radius: 1.25rem; }
+      .scale { gap: .25rem; }
+      .scale .opt { padding: .55rem .2rem; font-size: .82rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="2"/><path d="M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/><circle cx="7" cy="16" r="1.5"/><circle cx="17" cy="16" r="1.5"/></svg>
+      </div>
+      <span class="logo-text">Jaborandi<span>Transp</span></span>
+    </div>
+
+    <h1>Você usa ônibus em<br/><em>Jaborandi?</em></h1>
+    <p class="subtitle">
+      Responda 6 perguntas rápidas e ajude a validar um site gratuito para consultar horários de ônibus da nossa cidade.
+    </p>
+    <div class="anon-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      100% anônima · menos de 2 minutos
+    </div>
+  </header>
+
+  <!-- Progresso -->
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span>Perguntas respondidas</span>
+      <strong id="pct-label">0 / 6</strong>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="prog-fill"></div>
+    </div>
+  </div>
+
+  <!-- Formulário -->
+  <form id="form" novalidate>
+
+    <!-- Q1 -->
+    <div class="question-card" data-required>
+      <div class="q-number">Pergunta 1 de 6</div>
+      <p class="q-label">Qual é o seu perfil? <span class="required">*</span></p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="perfil" value="Trabalhador(a)"/><span class="dot"></span> Trabalhador(a)</label>
+        <label class="opt"><input type="radio" name="perfil" value="Idoso(a) / Aposentado(a)"/><span class="dot"></span> Idoso(a) / Aposentado(a)</label>
+        <label class="opt"><input type="radio" name="perfil" value="Morador(a) em geral"/><span class="dot"></span> Morador(a) em geral</label>
+        <label class="opt"><input type="radio" name="perfil" value="Outro"/><span class="dot"></span> Outro</label>
+      </div>
+      <span class="field-error">Por favor, selecione uma opção.</span>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-card" data-required>
+      <div class="q-number">Pergunta 2 de 6</div>
+      <p class="q-label">Com que frequência você usa ônibus intermunicipal? <span class="required">*</span></p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="frequencia" value="Todo dia"/><span class="dot"></span> Todo dia</label>
+        <label class="opt"><input type="radio" name="frequencia" value="Algumas vezes por semana"/><span class="dot"></span> Algumas vezes por semana</label>
+        <label class="opt"><input type="radio" name="frequencia" value="Algumas vezes por mês"/><span class="dot"></span> Algumas vezes por mês</label>
+        <label class="opt"><input type="radio" name="frequencia" value="Raramente"/><span class="dot"></span> Raramente</label>
+        <label class="opt"><input type="radio" name="frequencia" value="Nunca usei"/><span class="dot"></span> Nunca usei</label>
+      </div>
+      <span class="field-error">Por favor, selecione uma opção.</span>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-card" data-required>
+      <div class="q-number">Pergunta 3 de 6</div>
+      <p class="q-label">Como você descobre os horários dos ônibus hoje? <span class="required">*</span></p>
+      <div class="options">
+        <label class="opt"><input type="radio" name="como_descobre" value="Pergunto a conhecidos"/><span class="dot"></span> Pergunto a conhecidos / boca a boca</label>
+        <label class="opt"><input type="radio" name="como_descobre" value="Vou à rodoviária pessoalmente"/><span class="dot"></span> Vou à rodoviária pessoalmente</label>
+        <label class="opt"><input type="radio" name="como_descobre" value="Site ou app da empresa"/><span class="dot"></span> Site ou aplicativo da empresa</label>
+        <label class="opt"><input type="radio" name="como_descobre" value="Redes sociais / WhatsApp"/><span class="dot"></span> Redes sociais / WhatsApp</label>
+        <label class="opt"><input type="radio" name="como_descobre" value="Não sei onde encontrar"/><span class="dot"></span> Não sei onde encontrar</label>
+      </div>
+      <span class="field-error">Por favor, selecione uma opção.</span>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-card" data-required>
+      <div class="q-number">Pergunta 4 de 6</div>
+      <p class="q-label">Você já perdeu um ônibus por não saber o horário correto? <span class="required">*</span></p>
+      <div class="options row">
+        <label class="opt"><input type="radio" name="perdeu" value="Sim, várias vezes"/><span class="dot"></span> Sim, várias vezes</label>
+        <label class="opt"><input type="radio" name="perdeu" value="Sim, algumas vezes"/><span class="dot"></span> Algumas vezes</label>
+        <label class="opt"><input type="radio" name="perdeu" value="Raramente"/><span class="dot"></span> Raramente</label>
+        <label class="opt"><input type="radio" name="perdeu" value="Nunca"/><span class="dot"></span> Nunca</label>
+      </div>
+      <span class="field-error">Por favor, selecione uma opção.</span>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-card" data-required>
+      <div class="q-number">Pergunta 5 de 6</div>
+      <p class="q-label">
+        Um site gratuito para ver os horários de ônibus de Jaborandi seria útil para você?
+        <span class="required">*</span>
+        <span class="q-hint">1 = pouco útil &nbsp;·&nbsp; 5 = muito útil</span>
+      </p>
+      <div class="scale">
+        <label class="opt"><input type="radio" name="utilidade" value="1"/><span class="dot"></span>1</label>
+        <label class="opt"><input type="radio" name="utilidade" value="2"/><span class="dot"></span>2</label>
+        <label class="opt"><input type="radio" name="utilidade" value="3"/><span class="dot"></span>3</label>
+        <label class="opt"><input type="radio" name="utilidade" value="4"/><span class="dot"></span>4</label>
+        <label class="opt"><input type="radio" name="utilidade" value="5"/><span class="dot"></span>5</label>
+      </div>
+      <div class="scale-labels"><span>Pouco útil</span><span>Muito útil</span></div>
+      <span class="field-error">Por favor, selecione uma nota.</span>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-card" data-required>
+      <div class="q-number">Pergunta 6 de 6</div>
+      <p class="q-label">
+        Quais recursos seriam mais importantes no site?
+        <span class="required">*</span>
+        <span class="q-hint">Pode marcar mais de um</span>
+      </p>
+      <div class="options">
+        <label class="opt"><input type="checkbox" name="recursos" value="Horários por linha"/><span class="dot"></span> Horários organizados por linha</label>
+        <label class="opt"><input type="checkbox" name="recursos" value="Alertas de mudança"/><span class="dot"></span> Avisos sobre mudanças e cancelamentos</label>
+        <label class="opt"><input type="checkbox" name="recursos" value="Valor da passagem"/><span class="dot"></span> Valor da passagem</label>
+        <label class="opt"><input type="checkbox" name="recursos" value="Paradas do trajeto"/><span class="dot"></span> Paradas e trajeto completo</label>
+        <label class="opt"><input type="checkbox" name="recursos" value="Fácil de usar no celular"/><span class="dot"></span> Fácil de usar no celular</label>
+      </div>
+      <span class="field-error">Selecione pelo menos uma opção.</span>
+    </div>
+
+    <button type="submit" class="btn-submit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/>
+      </svg>
+      Enviar minha resposta
+    </button>
+
+  </form>
+
+  <!-- Sucesso -->
+  <div id="success">
+    <div class="success-icon">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    </div>
+    <h2>Obrigado! 🎉</h2>
+    <p>Sua resposta foi registrada e vai ajudar muito na validação do <strong>Jaborandi Transp</strong>. Juntos melhoramos o transporte da nossa cidade!</p>
+    <span class="success-tag">Projeto Integrador · TI · Jaborandi–SP</span>
+  </div>
+
+</div>
+
+<script>
+  const form     = document.getElementById('form');
+  const fill     = document.getElementById('prog-fill');
+  const pctLabel = document.getElementById('pct-label');
+  const cards    = [...form.querySelectorAll('[data-required]')];
+  const TOTAL    = cards.length;
+
+  /* ── Progresso ── */
+  function isAnswered(card) {
+    const radios = card.querySelectorAll('input[type="radio"]');
+    const checks = card.querySelectorAll('input[type="checkbox"]');
+    if (radios.length) return [...radios].some(r => r.checked);
+    if (checks.length) return [...checks].some(c => c.checked);
+    return false;
+  }
+
+  function updateProgress() {
+    const answered = cards.filter(isAnswered).length;
+    const pct = Math.round((answered / TOTAL) * 100);
+    fill.style.width = pct + '%';
+    pctLabel.textContent = answered + ' / ' + TOTAL;
+  }
+
+  form.addEventListener('change', updateProgress);
+
+  /* ── Validação por card ── */
+  function validateCard(card) {
+    const ok = isAnswered(card);
+    card.classList.toggle('invalid', !ok);
+    return ok;
+  }
+
+  cards.forEach(card => {
+    card.addEventListener('change', () => card.classList.remove('invalid'));
+  });
+
+  /* ── Submit ── */
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const allValid = cards.map(validateCard).every(Boolean);
+    if (!allValid) {
+      form.querySelector('.invalid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const fd = new FormData(form);
+    const result = {
+      perfil:         fd.get('perfil'),
+      frequencia:     fd.get('frequencia'),
+      como_descobre:  fd.get('como_descobre'),
+      perdeu_onibus:  fd.get('perdeu'),
+      utilidade:      fd.get('utilidade'),
+      recursos:       fd.getAll('recursos').join(', '),
+      timestamp:      new Date().toLocaleString('pt-BR')
+    };
+
+    /* Em produção: enviar para API, Google Sheets etc. */
+    console.table(result);
+
+    form.style.display = 'none';
+    document.querySelector('.progress-wrap').style.display = 'none';
+    document.getElementById('success').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
