@@ -425,7 +425,11 @@
   </div>
 
   <!-- Formulário -->
-  <form id="form" novalidate>
+  <form id="form"
+      action="https://formspree.io/f/xdallabw"
+      method="POST"
+      novalidate>
+
 
     <!-- Q1 -->
     <div class="question-card" data-required>
@@ -541,14 +545,15 @@
 
 </div>
 
+
+ 
 <script>
-  const form     = document.getElementById('form');
+   const form     = document.getElementById('form');
   const fill     = document.getElementById('prog-fill');
   const pctLabel = document.getElementById('pct-label');
   const cards    = [...form.querySelectorAll('[data-required]')];
   const TOTAL    = cards.length;
 
-  /* ── Progresso ── */
   function isAnswered(card) {
     const radios = card.querySelectorAll('input[type="radio"]');
     const checks = card.querySelectorAll('input[type="checkbox"]');
@@ -566,7 +571,6 @@
 
   form.addEventListener('change', updateProgress);
 
-  /* ── Validação por card ── */
   function validateCard(card) {
     const ok = isAnswered(card);
     card.classList.toggle('invalid', !ok);
@@ -577,8 +581,7 @@
     card.addEventListener('change', () => card.classList.remove('invalid'));
   });
 
-  /* ── Submit ── */
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
 
     const allValid = cards.map(validateCard).every(Boolean);
@@ -587,25 +590,23 @@
       return;
     }
 
-    const fd = new FormData(form);
-    const result = {
-      perfil:         fd.get('perfil'),
-      frequencia:     fd.get('frequencia'),
-      como_descobre:  fd.get('como_descobre'),
-      perdeu_onibus:  fd.get('perdeu'),
-      utilidade:      fd.get('utilidade'),
-      recursos:       fd.getAll('recursos').join(', '),
-      timestamp:      new Date().toLocaleString('pt-BR')
-    };
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
 
-    /* Em produção: enviar para API, Google Sheets etc. */
-    console.table(result);
-
-    form.style.display = 'none';
-    document.querySelector('.progress-wrap').style.display = 'none';
-    document.getElementById('success').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (response.ok) {
+      form.style.display = 'none';
+      document.querySelector('.progress-wrap').style.display = 'none';
+      document.getElementById('success').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      alert("Erro ao enviar. Tente novamente.");
+    }
   });
 </script>
+
 </body>
 </html>
+
